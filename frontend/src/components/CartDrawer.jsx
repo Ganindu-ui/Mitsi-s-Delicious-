@@ -15,6 +15,7 @@ export default function CartDrawer({
   onClearCart,
   orderType,
   setOrderType,
+  onOpenCheckout,
   onCheckoutSuccess
 }) {
   const [promoCode, setPromoCode] = useState('');
@@ -312,22 +313,22 @@ export default function CartDrawer({
 
             {/* Order Action Buttons */}
             <div className="cart-action-buttons">
+              {/* Online Checkout & Payment Button (Primary) */}
+              <button 
+                className="btn btn-primary full-btn btn-checkout-main"
+                onClick={onOpenCheckout}
+              >
+                <span>Proceed to Online Checkout & Pay</span>
+                <ArrowRight size={18} />
+              </button>
+
               {/* WhatsApp Direct Order Button */}
               <button 
                 className="btn btn-gold full-btn whatsapp-order-btn"
                 onClick={handleWhatsAppOrder}
               >
                 <MessageCircle size={18} />
-                <span>Order Direct via WhatsApp</span>
-              </button>
-
-              {/* In-App Direct Checkout Button */}
-              <button 
-                className="btn btn-primary full-btn"
-                onClick={handleDirectCheckout}
-              >
-                <span>Confirm Order & Pay</span>
-                <ArrowRight size={18} />
+                <span>Quick Order via WhatsApp</span>
               </button>
 
               {/* Uber Eats Alternative Link */}

@@ -1,0 +1,762 @@
+.checkout-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 6, 12, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  z-index: 2500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.checkout-modal-card {
+  width: 100%;
+  max-width: 640px;
+  max-height: 92vh;
+  background: #14101b;
+  border: 1px solid var(--border-brand);
+  border-radius: var(--radius-xl);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(217, 37, 139, 0.25);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Processing Overlay */
+.processing-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(14, 10, 20, 0.96);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.processing-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.spinner-glow {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 3px solid rgba(217, 37, 139, 0.2);
+  border-top-color: var(--brand-pink);
+  border-right-color: #fbbf24;
+  animation: spin 0.85s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.lock-icon-spin {
+  color: #fbbf24;
+  margin-top: -54px;
+  margin-bottom: 20px;
+}
+
+.proc-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.proc-status-text {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  min-height: 24px;
+}
+
+.proc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+/* Header */
+.checkout-header {
+  padding: 20px 26px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.checkout-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.checkout-step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 0.78rem;
+}
+
+.step-dot {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.step-dot.active {
+  color: var(--brand-pink);
+  font-weight: 700;
+}
+
+.step-dot.done {
+  color: #34d399;
+}
+
+.step-arrow {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.checkout-close-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.checkout-close-btn:hover {
+  background: var(--brand-pink);
+}
+
+/* Body */
+.checkout-body {
+  padding: 22px 26px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.step-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(217, 37, 139, 0.1);
+  border: 1px solid rgba(217, 37, 139, 0.25);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: #ffffff;
+}
+
+.sparkle-gold {
+  color: #fbbf24;
+}
+
+/* Form Styles */
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.form-input, .form-select {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.form-input:focus, .form-select:focus {
+  border-color: var(--brand-pink);
+  background: rgba(217, 37, 139, 0.06);
+  box-shadow: 0 0 12px rgba(217, 37, 139, 0.25);
+}
+
+.form-input.error {
+  border-color: #f43f5e;
+}
+
+.field-err {
+  font-size: 0.72rem;
+  color: #f43f5e;
+}
+
+.textarea-address {
+  resize: none;
+}
+
+.form-select option {
+  background: #14101b;
+  color: #ffffff;
+}
+
+.timing-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.timing-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: all var(--transition-fast);
+}
+
+.timing-pill.active {
+  border-color: var(--brand-pink);
+  background: rgba(217, 37, 139, 0.12);
+  color: #ffffff;
+}
+
+.timing-pill input {
+  accent-color: var(--brand-pink);
+}
+
+/* Payment Methods Grid */
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+}
+
+.payment-method-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  transition: all var(--transition-fast);
+}
+
+.payment-method-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(217, 37, 139, 0.4);
+}
+
+.payment-method-card.selected {
+  background: rgba(217, 37, 139, 0.12);
+  border-color: var(--brand-pink);
+  box-shadow: 0 4px 15px rgba(217, 37, 139, 0.25);
+}
+
+.pm-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pm-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-pink);
+}
+
+.koko-icon {
+  background: #502ec3;
+  color: #ffffff;
+}
+
+.brand-koko {
+  font-size: 0.65rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.mintpay-icon {
+  background: #00d285;
+  color: #0b1a13;
+}
+
+.brand-mintpay {
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.pm-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.pm-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.pm-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.pm-tag {
+  align-self: flex-start;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+.pm-tag.instant {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+.pm-tag.bnpl {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+.pm-tag.bank {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+.pm-tag.cod {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+}
+
+/* Interactive Card Visual */
+.card-payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.card-mockup {
+  background: linear-gradient(135deg, #2b1836 0%, #150f1f 60%, #3e1b34 100%);
+  border: 1px solid rgba(217, 37, 139, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  color: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.card-mockup-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-chip {
+  width: 38px;
+  height: 26px;
+  background: linear-gradient(135deg, #d4af37, #f7e28b);
+  border-radius: 6px;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.card-network {
+  font-size: 0.85rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #fdf2f8;
+}
+
+.card-mockup-number {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+.card-mockup-bottom {
+  display: flex;
+  justify-content: space-between;
+}
+
+.card-mockup-bottom small {
+  display: block;
+  font-size: 0.62rem;
+  color: var(--brand-magenta-light);
+  letter-spacing: 0.05em;
+}
+
+.card-mockup-bottom span {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.test-card-fill-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px dashed rgba(245, 158, 11, 0.3);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+}
+
+.test-hint {
+  font-size: 0.78rem;
+  color: #fbbf24;
+}
+
+.btn-autofill {
+  background: rgba(245, 158, 11, 0.2);
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+  font-family: var(--font-heading);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-autofill:hover {
+  background: #f59e0b;
+  color: #0c0a10;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.field-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--text-muted);
+}
+
+.input-with-icon .form-input {
+  padding-left: 40px;
+}
+
+/* BNPL Timeline */
+.bnpl-info-card {
+  background: rgba(80, 46, 195, 0.1);
+  border: 1px solid rgba(80, 46, 195, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.bnpl-info-card.mintpay-theme {
+  background: rgba(0, 210, 133, 0.08);
+  border-color: rgba(0, 210, 133, 0.25);
+}
+
+.bnpl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bnpl-header h4 {
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.bnpl-badge {
+  background: #502ec3;
+  color: #ffffff;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+}
+
+.bnpl-badge.mintpay-bg {
+  background: #00d285;
+  color: #000000;
+}
+
+.installments-timeline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+}
+
+.timeline-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+}
+
+.node-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.timeline-node.active .node-num {
+  background: var(--brand-pink);
+}
+
+.node-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.node-amt {
+  font-size: 0.84rem;
+  color: #ffffff;
+}
+
+.timeline-line {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 10px;
+}
+
+.bnpl-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* QR Code Card */
+.qr-info-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.qr-box-wrap {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.fake-qr-code {
+  background: #ffffff;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.qr-center-lbl {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #d9258b;
+  color: #ffffff;
+  font-size: 0.55rem;
+  font-weight: 900;
+  padding: 2px 4px;
+  border-radius: 3px;
+}
+
+.qr-text-info h4 {
+  font-size: 1rem;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.qr-text-info p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.bank-acc-details {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+}
+
+/* COD Card */
+.cod-info-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 24px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-lg);
+}
+
+.cod-icon {
+  color: #10b981;
+}
+
+.cod-info-card h4 {
+  font-size: 1.1rem;
+  color: #ffffff;
+}
+
+.cod-info-card p {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  max-width: 420px;
+}
+
+/* Sticky Footer */
+.checkout-footer {
+  padding: 16px 26px;
+  background: #100c16;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.checkout-total-summary {
+  display: flex;
+  flex-direction: column;
+}
+
+.total-label {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.total-amount {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+.checkout-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-checkout-action {
+  padding: 12px 24px;
+  font-size: 0.95rem;
+}
+
+.btn-pay-now {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+}
+
+.btn-pay-now:hover {
+  background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+  box-shadow: 0 6px 22px rgba(16, 185, 129, 0.55);
+}
+
+@media (max-width: 600px) {
+  .checkout-header, .checkout-body, .checkout-footer {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .timing-options {
+    grid-template-columns: 1fr;
+  }
+  .payment-methods-grid {
+    grid-template-columns: 1fr;
+  }
+  .qr-box-wrap {
+    flex-direction: column;
+    text-align: center;
+  }
+  .checkout-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .checkout-btn-group {
+    width: 100%;
+  }
+  .btn-checkout-action {
+    flex: 1;
+  }
+}

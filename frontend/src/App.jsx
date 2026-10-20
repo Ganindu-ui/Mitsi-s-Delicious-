@@ -6,6 +6,7 @@ import FilterBar from './components/FilterBar';
 import ProductCard from './components/ProductCard';
 import CustomizationModal from './components/CustomizationModal';
 import CartDrawer from './components/CartDrawer';
+import CheckoutModal from './components/CheckoutModal';
 import OrderSuccessModal from './components/OrderSuccessModal';
 import AmbianceSection from './components/AmbianceSection';
 import Footer from './components/Footer';
@@ -26,6 +27,7 @@ export default function App() {
   });
 
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [orderType, setOrderType] = useState('delivery'); // 'delivery' | 'takeaway'
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -112,6 +114,20 @@ export default function App() {
   const cartCount = useMemo(() => {
     return cartItems.reduce((acc, curr) => acc + curr.quantity, 0);
   }, [cartItems]);
+
+  // Financial Totals
+  const subtotal = useMemo(() => {
+    return cartItems.reduce((sum, item) => {
+      const unit = item.customOptions?.customUnitPrice || item.price;
+      return sum + (unit * item.quantity);
+    }, 0);
+  }, [cartItems]);
+
+  const isDelivery = orderType === 'delivery';
+  const isFreeDelivery = subtotal >= RESTAURANT_INFO.freeDeliveryThreshold;
+  const deliveryFee = isDelivery ? (isFreeDelivery ? 0 : RESTAURANT_INFO.deliveryFee) : 0;
+  const discountAmount = 0; // standard checkout base before coupon
+  const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee);
 
   // Filter & Sort Logic
   const filteredDishes = useMemo(() => {
@@ -274,6 +290,10 @@ export default function App() {
         onClearCart={handleClearCart}
         orderType={orderType}
         setOrderType={setOrderType}
+        onOpenCheckout={() => {
+          setIsCartOpen(false);
+          setIsCheckoutOpen(true);
+        }}
         onCheckoutSuccess={(orderInfo) => {
           setIsCartOpen(false);
           setCompletedOrder(orderInfo);
@@ -281,7 +301,26 @@ export default function App() {
         }}
       />
 
-      {/* Order Confirmed Success Modal */}
+      {/* Full Online Checkout & Payment Gateway Modal */}
+      {isCheckoutOpen && (
+        <CheckoutModal
+          isOpen={isCheckoutOpen}
+          onClose={() => setIsCheckoutOpen(false)}
+          cartItems={cartItems}
+          orderType={orderType}
+          subtotal={subtotal}
+          discountAmount={discountAmount}
+          deliveryFee={deliveryFee}
+          grandTotal={grandTotal}
+          onPaymentComplete={(orderInfo) => {
+            setIsCheckoutOpen(false);
+            setCompletedOrder(orderInfo);
+            setCartItems([]);
+          }}
+        />
+      )}
+
+      {/* Order Confirmed Live Tracker & Tax Invoice Modal */}
       {completedOrder && (
         <OrderSuccessModal
           orderData={completedOrder}
