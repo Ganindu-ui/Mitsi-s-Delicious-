@@ -1,0 +1,167 @@
+.order-success-card {
+  width: 100%;
+  max-width: 480px;
+  background: #14101b;
+  border: 1px solid var(--border-brand);
+  border-radius: var(--radius-xl);
+  padding: 36px 28px;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(217, 37, 139, 0.25);
+}
+
+.success-close-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.success-icon-wrap {
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.12);
+  border: 2px solid #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.check-success-icon {
+  color: #10b981;
+}
+
+.order-pill-status {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 4px 14px;
+  border-radius: var(--radius-full);
+}
+
+.success-title {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.25;
+}
+
+.success-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  max-width: 380px;
+}
+
+/* Receipt */
+.order-receipt-box {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.receipt-header .lbl {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.order-id-val {
+  font-size: 1.15rem;
+  color: #fbbf24;
+}
+
+.via-val {
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.receipt-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.receipt-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.r-stat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.r-icon {
+  color: var(--brand-pink);
+}
+
+.r-stat small {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.r-stat strong {
+  display: block;
+  font-size: 0.88rem;
+  color: #ffffff;
+}
+
+.receipt-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.receipt-grand {
+  color: #fbbf24;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.success-wa-btn {
+  width: 100%;
+  background: #25D366;
+  color: #0d2814;
+}
+
+.new-order-btn {
+  width: 100%;
+}

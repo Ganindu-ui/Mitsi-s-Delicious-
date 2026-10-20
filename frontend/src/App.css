@@ -1,0 +1,120 @@
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Menu Section */
+.menu-section {
+  padding-bottom: 70px;
+}
+
+.menu-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 30px;
+}
+
+.menu-pre-title {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--brand-pink);
+  margin-bottom: 4px;
+}
+
+.menu-main-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.menu-sub-desc {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  max-width: 580px;
+  margin-top: 6px;
+}
+
+.uber-sync-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(6, 193, 103, 0.08);
+  border: 1px solid rgba(6, 193, 103, 0.25);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  color: #34d399;
+}
+
+.live-badge {
+  background: #06c167;
+  color: #000000;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+}
+
+/* Grid */
+.product-grid-container {
+  margin-bottom: 40px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 24px;
+}
+
+/* Empty State */
+.no-results-box {
+  background: var(--bg-card);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-xl);
+  padding: 60px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.no-results-icon {
+  color: var(--brand-pink);
+  opacity: 0.7;
+}
+
+.no-results-box h3 {
+  font-size: 1.35rem;
+  color: #ffffff;
+}
+
+.no-results-box p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  max-width: 360px;
+}
+
+@media (max-width: 768px) {
+  .menu-header-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .menu-main-title {
+    font-size: 1.8rem;
+  }
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+}
