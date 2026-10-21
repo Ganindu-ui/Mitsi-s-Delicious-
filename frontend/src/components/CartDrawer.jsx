@@ -4,6 +4,7 @@ import {
   Tag, MessageCircle, ExternalLink, Check, AlertCircle, Sparkles 
 } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/menuData';
+import api from '../services/api';
 import './CartDrawer.css';
 
 export default function CartDrawer({ 
@@ -34,8 +35,12 @@ export default function CartDrawer({
     return sum + (unit * item.quantity);
   }, 0);
 
-  // Discount
-  const discountAmount = appliedPromo ? Math.round(subtotal * appliedPromo.percent) : 0;
+  // Discount calculation
+  const discountAmount = appliedPromo 
+    ? (appliedPromo.fixedAmount !== undefined 
+        ? appliedPromo.fixedAmount 
+        : Math.round(subtotal * (appliedPromo.percent || 0)))
+    : 0;
   
   // Delivery Fee
   const isDelivery = orderType === 'delivery';
@@ -46,26 +51,45 @@ export default function CartDrawer({
 
   const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee);
 
-  // Handle Promo Application
-  const handleApplyPromo = (e) => {
+  // Handle Promo Application via Backend
+  const handleApplyPromo = async (e) => {
     e.preventDefault();
     setPromoError('');
     const code = promoCode.trim().toUpperCase();
+    if (!code) return;
 
-    if (code === 'MITSI10') {
-      setAppliedPromo({ code: 'MITSI10', percent: 0.1, label: '10% Welcome Discount' });
-      setPromoCode('');
-    } else if (code === 'ARABIAN20' && subtotal >= 4000) {
-      setAppliedPromo({ code: 'ARABIAN20', percent: 0.2, label: '20% Feast Discount' });
-      setPromoCode('');
-    } else {
-      setPromoError('Invalid coupon. Try "MITSI10" for 10% off!');
+    try {
+      const res = await api.validatePromo(code, subtotal);
+      if (res && res.valid && res.data) {
+        setAppliedPromo({
+          code: res.data.code,
+          fixedAmount: res.data.discountAmount,
+          percent: res.data.discountPercent ? res.data.discountPercent / 100 : null,
+          label: res.data.description
+        });
+        setPromoCode('');
+      } else {
+        setPromoError(res?.message || 'Invalid coupon.');
+      }
+    } catch (err) {
+      // Graceful local fallback if offline
+      if (code === 'MITSI10') {
+        setAppliedPromo({ code: 'MITSI10', percent: 0.1, label: '10% Welcome Discount' });
+        setPromoCode('');
+      } else if (code === 'ARABIAN20' && subtotal >= 4000) {
+        setAppliedPromo({ code: 'ARABIAN20', percent: 0.2, label: '20% Feast Discount' });
+        setPromoCode('');
+      } else {
+        setPromoError(err.message || 'Invalid coupon. Try "MITSI10" for 10% off!');
+      }
     }
   };
 
-  // Generate WhatsApp Order Link
-  const handleWhatsAppOrder = () => {
+  // Generate WhatsApp Order Link & Save to Backend
+  const handleWhatsAppOrder = async () => {
     if (cartItems.length === 0) return;
+
+    const generatedOrderId = 'MITSI-' + Math.floor(100000 + Math.random() * 900000);
 
     let message = `🍽️ *NEW ORDER - MITSI'S DELICACIES BY ARABIAN VIBES*\n`;
     message += `───────────────────\n`;
@@ -92,7 +116,7 @@ export default function CartDrawer({
     message += `\n───────────────────\n`;
     message += `*Subtotal:* LKR ${subtotal.toLocaleString()}\n`;
     if (discountAmount > 0) {
-      message += `*Discount (${appliedPromo.code}):* -LKR ${discountAmount.toLocaleString()}\n`;
+      message += `*Discount (${appliedPromo?.code}):* -LKR ${discountAmount.toLocaleString()}\n`;
     }
     if (isDelivery) {
       message += `*Delivery Fee:* ${deliveryFee === 0 ? 'FREE' : `LKR ${deliveryFee.toLocaleString()}`}\n`;
@@ -106,25 +130,67 @@ export default function CartDrawer({
     const encoded = encodeURI(message);
     const waUrl = `https://wa.me/${RESTAURANT_INFO.whatsapp.replace('+', '')}?text=${encoded}`;
     window.open(waUrl, '_blank');
-    onCheckoutSuccess({
-      orderId: 'MITSI-' + Math.floor(100000 + Math.random() * 900000),
+
+    const orderPayload = {
+      orderId: generatedOrderId,
+      customerName: customerName || 'Valued Guest',
+      phone: RESTAURANT_INFO.phone,
+      address: customerAddress || (isDelivery ? 'Colombo 03 Area' : 'Pickup at Store'),
+      deliveryNotes: customerNotes,
+      orderType,
       items: cartItems,
+      subtotal,
+      discountAmount,
+      promoCode: appliedPromo?.code || null,
+      deliveryFee,
       total: grandTotal,
-      type: orderType,
-      via: 'WhatsApp'
-    });
+      paymentMethod: 'WHATSAPP',
+      paidOnline: false,
+      via: 'WhatsApp Direct'
+    };
+
+    try {
+      const res = await api.createOrder(orderPayload);
+      if (res && res.success && res.data) {
+        onCheckoutSuccess(res.data);
+      } else {
+        onCheckoutSuccess(orderPayload);
+      }
+    } catch {
+      onCheckoutSuccess(orderPayload);
+    }
   };
 
   // Direct In-App Checkout
-  const handleDirectCheckout = () => {
-    onCheckoutSuccess({
-      orderId: 'MITSI-' + Math.floor(100000 + Math.random() * 900000),
-      items: cartItems,
-      total: grandTotal,
-      type: orderType,
+  const handleDirectCheckout = async () => {
+    const generatedOrderId = 'MITSI-' + Math.floor(100000 + Math.random() * 900000);
+    const orderPayload = {
+      orderId: generatedOrderId,
       customerName: customerName || 'Valued Guest',
-      via: 'Direct'
-    });
+      address: customerAddress || (isDelivery ? 'Colombo 03 Area' : 'Pickup at Store'),
+      deliveryNotes: customerNotes,
+      orderType,
+      items: cartItems,
+      subtotal,
+      discountAmount,
+      promoCode: appliedPromo?.code || null,
+      deliveryFee,
+      total: grandTotal,
+      paymentMethod: paymentMethod.toUpperCase(),
+      paidOnline: false,
+      via: 'In-App Direct'
+    };
+
+    try {
+      const res = await api.createOrder(orderPayload);
+      if (res && res.success && res.data) {
+        onCheckoutSuccess(res.data);
+      } else {
+        onCheckoutSuccess(orderPayload);
+      }
+    } catch {
+      onCheckoutSuccess(orderPayload);
+    }
   };
 
   return (

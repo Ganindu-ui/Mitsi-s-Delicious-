@@ -5,6 +5,7 @@ import {
   Banknote, Sparkles, CheckCircle2, Copy 
 } from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/menuData';
+import api from '../services/api';
 import './CheckoutModal.css';
 
 // Colombo delivery zones
@@ -101,7 +102,7 @@ export default function CheckoutModal({
     }
   };
 
-  // Trigger Online Payment Simulation
+  // Trigger Online Payment Simulation & Backend Order Persistence
   const handleSubmitPayment = (e) => {
     e.preventDefault();
 
@@ -132,14 +133,13 @@ export default function CheckoutModal({
       setProcessingStatus(`Authorizing LKR ${grandTotal.toLocaleString()} with Card Issuer...`);
     }, 2000);
 
-    setTimeout(() => {
-      setProcessingStatus('Payment Authorized & Confirmed!');
-      setIsProcessing(false);
+    setTimeout(async () => {
+      setProcessingStatus('Payment Authorized! Queuing order in kitchen...');
 
       const generatedOrderId = 'MITSI-' + Math.floor(100000 + Math.random() * 900000);
       const transactionId = 'TXN-' + Math.random().toString(36).substring(2, 10).toUpperCase();
 
-      onPaymentComplete({
+      const orderPayload = {
         orderId: generatedOrderId,
         transactionId,
         customerName: fullName,
@@ -151,15 +151,36 @@ export default function CheckoutModal({
         items: cartItems,
         subtotal,
         discountAmount,
+        promoCode: promoCode || null,
         deliveryFee,
         total: grandTotal,
         paymentMethod: paymentMethod.toUpperCase(),
         paidOnline: paymentMethod !== 'cod',
         paidAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        date: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
-      });
+        date: new Date().toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }),
+        via: 'Online Gateway'
+      };
+
+      try {
+        const response = await api.createOrder(orderPayload);
+        setIsProcessing(false);
+        if (response && response.success && response.data) {
+          onPaymentComplete({
+            ...orderPayload,
+            ...response.data,
+            orderId: response.data.orderId || generatedOrderId,
+            trackingCode: response.data.trackingCode
+          });
+        } else {
+          onPaymentComplete(orderPayload);
+        }
+      } catch (err) {
+        console.warn('Backend order sync issue, fallback to client order', err);
+        setIsProcessing(false);
+        onPaymentComplete(orderPayload);
+      }
       onClose();
-    }, 3200);
+    }, 3000);
   };
 
   // Koko / Mintpay installment calculation (divide by 3)

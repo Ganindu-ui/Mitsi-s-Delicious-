@@ -1,9 +1,21 @@
 import React, { useState } from 'react';
-import { ShoppingBag, MapPin, Clock, Phone, ExternalLink, ChevronDown, Sparkles } from 'lucide-react';
+import { 
+  ShoppingBag, MapPin, Clock, Phone, ExternalLink, ChevronDown, 
+  Sparkles, Calendar, Search, ChefHat 
+} from 'lucide-react';
 import { RESTAURANT_INFO } from '../data/menuData';
 import './Navbar.css';
 
-export default function Navbar({ cartCount, onOpenCart, orderType, setOrderType, onScrollToMenu }) {
+export default function Navbar({ 
+  cartCount, 
+  onOpenCart, 
+  orderType, 
+  setOrderType, 
+  onScrollToMenu,
+  onOpenTrackOrder,
+  onOpenReservation,
+  onOpenKitchenPortal
+}) {
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
 
   return (
@@ -20,6 +32,14 @@ export default function Navbar({ cartCount, onOpenCart, orderType, setOrderType,
             <span className="top-banner-text">Colombo 03 & Greater Colombo Express Delivery</span>
           </div>
           <div className="top-banner-right">
+            <button 
+              className="kitchen-staff-pill"
+              onClick={onOpenKitchenPortal}
+              title="Staff & Kitchen Live Dispatch Portal"
+            >
+              <ChefHat size={13} />
+              <span>Kitchen Portal</span>
+            </button>
             <a 
               href={RESTAURANT_INFO.uberEatsUrl} 
               target="_blank" 
@@ -28,7 +48,7 @@ export default function Navbar({ cartCount, onOpenCart, orderType, setOrderType,
               title="View Mitsi's Delicacies on Uber Eats"
             >
               <span className="uber-dot"></span>
-              <span>Uber Eats Official Store</span>
+              <span>Uber Eats Store</span>
               <ExternalLink size={12} />
             </a>
             <a href={`tel:${RESTAURANT_INFO.phone}`} className="phone-quick-link">
@@ -76,9 +96,19 @@ export default function Navbar({ cartCount, onOpenCart, orderType, setOrderType,
 
         {/* Action Controls */}
         <div className="nav-actions">
+          <button className="nav-link-btn" onClick={onOpenTrackOrder} title="Track your live order">
+            <Search size={15} />
+            <span>Track Order</span>
+          </button>
+
+          <button className="nav-link-btn" onClick={onOpenReservation} title="Reserve a dining table">
+            <Calendar size={15} />
+            <span>Book Table</span>
+          </button>
+
           <button className="nav-link-btn" onClick={onScrollToMenu}>
-            <Sparkles size={16} />
-            <span>View Menu</span>
+            <Sparkles size={15} />
+            <span>Menu</span>
           </button>
 
           {/* Cart Trigger */}

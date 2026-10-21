@@ -82,6 +82,27 @@
   color: var(--brand-pink);
 }
 
+.kitchen-staff-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(217, 37, 139, 0.15);
+  color: #ff5ea8;
+  border: 1px solid rgba(217, 37, 139, 0.35);
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.kitchen-staff-pill:hover {
+  background: #d9258b;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
 /* Main Navbar */
 .main-nav {
   display: flex;

@@ -3,7 +3,7 @@ import { Heart, MapPin, Phone, Clock, ExternalLink, ShieldCheck, MessageCircle }
 import { RESTAURANT_INFO } from '../data/menuData';
 import './Footer.css';
 
-export default function Footer({ onCategoryClick }) {
+export default function Footer({ onCategoryClick, onOpenTrackOrder, onOpenReservation, onOpenKitchenPortal }) {
   return (
     <footer className="footer-wrapper">
       <div className="container footer-container">
@@ -33,16 +33,16 @@ export default function Footer({ onCategoryClick }) {
           </div>
         </div>
 
-        {/* Col 2: Quick Menus */}
+        {/* Col 2: Quick Menus & Services */}
         <div className="footer-col">
-          <h4 className="footer-heading">Menu Highlights</h4>
+          <h4 className="footer-heading">Services & Dining</h4>
           <ul className="footer-links">
+            <li><button onClick={onOpenTrackOrder}>📍 Track Live Order</button></li>
+            <li><button onClick={onOpenReservation}>📅 Reserve a Dining Table</button></li>
+            <li><button onClick={onOpenKitchenPortal}>👨‍🍳 Staff Operations Portal</button></li>
             <li><button onClick={() => onCategoryClick('bbq')}>Turkish & Serbian BBQ</button></li>
             <li><button onClick={() => onCategoryClick('submarine')}>12" Chicken Submarines</button></li>
-            <li><button onClick={() => onCategoryClick('shawarma')}>Authentic Shawarmas</button></li>
-            <li><button onClick={() => onCategoryClick('pasta')}>Classic Alfredo Pastas</button></li>
             <li><button onClick={() => onCategoryClick('delicacies')}>Mitsi's Delicacy Cakes</button></li>
-            <li><button onClick={() => onCategoryClick('starters')}>Mezze & Fresh Hummus</button></li>
           </ul>
         </div>
 

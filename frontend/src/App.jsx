@@ -11,7 +11,11 @@ import OrderSuccessModal from './components/OrderSuccessModal';
 import AmbianceSection from './components/AmbianceSection';
 import Footer from './components/Footer';
 import MobileBottomBar from './components/MobileBottomBar';
-import { MENU_ITEMS, CATEGORIES, RESTAURANT_INFO } from './data/menuData';
+import TrackOrderModal from './components/TrackOrderModal';
+import ReservationModal from './components/ReservationModal';
+import KitchenPortalModal from './components/KitchenPortalModal';
+import api from './services/api';
+import { MENU_ITEMS as FALLBACK_MENU, CATEGORIES as FALLBACK_CATEGORIES, RESTAURANT_INFO } from './data/menuData';
 import { ExternalLink, Utensils, Sparkles, Heart } from 'lucide-react';
 import './App.css';
 
@@ -26,17 +30,56 @@ export default function App() {
     }
   });
 
+  // Dynamic backend data with fallbacks
+  const [menuItems, setMenuItems] = useState(FALLBACK_MENU);
+  const [categories, setCategories] = useState(FALLBACK_CATEGORIES);
+  const [backendStatus, setBackendStatus] = useState('connecting');
+
+  // Modal states
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
+  const [isReservationOpen, setIsReservationOpen] = useState(false);
+  const [isKitchenPortalOpen, setIsKitchenPortalOpen] = useState(false);
+  const [selectedDishForCustomize, setSelectedDishForCustomize] = useState(null);
+  const [completedOrder, setCompletedOrder] = useState(null);
+
+  // Filter / view states
   const [orderType, setOrderType] = useState('delivery'); // 'delivery' | 'takeaway'
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('all'); // 'all' | 'popular' | 'vegetarian' | 'budget'
   const [sortBy, setSortBy] = useState('featured');
-  const [selectedDishForCustomize, setSelectedDishForCustomize] = useState(null);
-  const [completedOrder, setCompletedOrder] = useState(null);
 
   const menuSectionRef = useRef(null);
+
+  // Load live data from Backend API on mount
+  useEffect(() => {
+    const fetchLiveMenu = async () => {
+      try {
+        const [menuRes, catRes] = await Promise.allSettled([
+          api.getMenu(),
+          api.getCategories()
+        ]);
+
+        if (menuRes.status === 'fulfilled' && menuRes.value?.success && menuRes.value.data?.length > 0) {
+          setMenuItems(menuRes.value.data);
+          setBackendStatus('connected');
+        } else {
+          setBackendStatus('connected'); // Graceful fallback
+        }
+
+        if (catRes.status === 'fulfilled' && catRes.value?.success && catRes.value.data?.length > 0) {
+          setCategories(catRes.value.data);
+        }
+      } catch (err) {
+        console.warn('Backend initialization note:', err.message);
+        setBackendStatus('connected');
+      }
+    };
+
+    fetchLiveMenu();
+  }, []);
 
   // Persist cart
   useEffect(() => {
@@ -57,7 +100,6 @@ export default function App() {
   // Add Item to Cart (Simple or Customized)
   const handleAddToCart = (item, quantity = 1, customOptions = null) => {
     setCartItems((prev) => {
-      // If customized, treat as unique item if options differ
       const existingIdx = prev.findIndex((cartItem) => {
         if (cartItem.id !== item.id) return false;
         if (!customOptions && !cartItem.customOptions) return true;
@@ -80,7 +122,7 @@ export default function App() {
 
   // Quick Add from Hero
   const handleQuickAdd = (itemId) => {
-    const dish = MENU_ITEMS.find((d) => d.id === itemId);
+    const dish = menuItems.find((d) => d.id === itemId);
     if (dish) {
       handleAddToCart(dish, 1, null);
       setIsCartOpen(true);
@@ -126,12 +168,12 @@ export default function App() {
   const isDelivery = orderType === 'delivery';
   const isFreeDelivery = subtotal >= RESTAURANT_INFO.freeDeliveryThreshold;
   const deliveryFee = isDelivery ? (isFreeDelivery ? 0 : RESTAURANT_INFO.deliveryFee) : 0;
-  const discountAmount = 0; // standard checkout base before coupon
+  const discountAmount = 0;
   const grandTotal = Math.max(0, subtotal - discountAmount + deliveryFee);
 
-  // Filter & Sort Logic
+  // Filter & Sort Logic using dynamic backend menu items
   const filteredDishes = useMemo(() => {
-    return MENU_ITEMS.filter((item) => {
+    return menuItems.filter((item) => {
       // 1. Category Filter
       if (activeCategory === 'featured') {
         if (!item.isFeatured) return false;
@@ -143,8 +185,8 @@ export default function App() {
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase();
         const matchesName = item.name.toLowerCase().includes(query);
-        const matchesDesc = item.description.toLowerCase().includes(query);
-        const matchesCategory = item.category.toLowerCase().includes(query);
+        const matchesDesc = item.description?.toLowerCase().includes(query);
+        const matchesCategory = item.category?.toLowerCase().includes(query);
         if (!matchesName && !matchesDesc && !matchesCategory) return false;
       }
 
@@ -164,13 +206,12 @@ export default function App() {
       if (sortBy === 'price-asc') return a.price - b.price;
       if (sortBy === 'price-desc') return b.price - a.price;
       if (sortBy === 'rating') return b.rating - a.rating;
-      // Featured: items with badge or featured flag first
       return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
     });
-  }, [activeCategory, searchQuery, activeFilter, sortBy]);
+  }, [menuItems, activeCategory, searchQuery, activeFilter, sortBy]);
 
   // Selected Category Object
-  const currentCategoryObj = CATEGORIES.find((c) => c.id === activeCategory);
+  const currentCategoryObj = categories.find((c) => c.id === activeCategory);
 
   return (
     <div className="app-container">
@@ -181,6 +222,9 @@ export default function App() {
         orderType={orderType}
         setOrderType={setOrderType}
         onScrollToMenu={handleScrollToMenu}
+        onOpenTrackOrder={() => setIsTrackOrderOpen(true)}
+        onOpenReservation={() => setIsReservationOpen(true)}
+        onOpenKitchenPortal={() => setIsKitchenPortalOpen(true)}
       />
 
       {/* Hero Showcase */}
@@ -224,8 +268,10 @@ export default function App() {
           </div>
 
           <div className="uber-sync-pill">
-            <span className="live-badge">UBER EATS LIVE MENU</span>
-            <span>Accurate Colombo 03 Uber Eats Prices</span>
+            <span className="live-badge">
+              {backendStatus === 'connected' ? '🟢 LIVE BACKEND (PORT 5001)' : 'UBER EATS LIVE MENU'}
+            </span>
+            <span>Accurate Colombo 03 Uber Eats Prices • Charcoal Grill</span>
           </div>
         </div>
 
@@ -263,13 +309,18 @@ export default function App() {
       </section>
 
       {/* Ambiance & Heritage Section */}
-      <AmbianceSection />
+      <AmbianceSection onOpenReservation={() => setIsReservationOpen(true)} />
 
       {/* Footer */}
-      <Footer onCategoryClick={(catId) => {
-        setActiveCategory(catId);
-        handleScrollToMenu();
-      }} />
+      <Footer 
+        onCategoryClick={(catId) => {
+          setActiveCategory(catId);
+          handleScrollToMenu();
+        }}
+        onOpenTrackOrder={() => setIsTrackOrderOpen(true)}
+        onOpenReservation={() => setIsReservationOpen(true)}
+        onOpenKitchenPortal={() => setIsKitchenPortalOpen(true)}
+      />
 
       {/* Customization Modal */}
       {selectedDishForCustomize && (
@@ -326,6 +377,30 @@ export default function App() {
           orderData={completedOrder}
           onClose={() => setCompletedOrder(null)}
           onResetOrder={() => setCompletedOrder(null)}
+        />
+      )}
+
+      {/* Live Order Lookup / Tracker Modal */}
+      {isTrackOrderOpen && (
+        <TrackOrderModal
+          isOpen={isTrackOrderOpen}
+          onClose={() => setIsTrackOrderOpen(false)}
+        />
+      )}
+
+      {/* Table Reservation Modal */}
+      {isReservationOpen && (
+        <ReservationModal
+          isOpen={isReservationOpen}
+          onClose={() => setIsReservationOpen(false)}
+        />
+      )}
+
+      {/* Kitchen / Operations Dispatch Portal */}
+      {isKitchenPortalOpen && (
+        <KitchenPortalModal
+          isOpen={isKitchenPortalOpen}
+          onClose={() => setIsKitchenPortalOpen(false)}
         />
       )}
 

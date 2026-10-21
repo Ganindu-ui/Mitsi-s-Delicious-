@@ -3,7 +3,7 @@ import { MapPin, Phone, Clock, Utensils, HeartHandshake, Award, ExternalLink } f
 import { RESTAURANT_INFO } from '../data/menuData';
 import './AmbianceSection.css';
 
-export default function AmbianceSection() {
+export default function AmbianceSection({ onOpenReservation }) {
   return (
     <section className="ambiance-section">
       <div className="container ambiance-container">
@@ -86,6 +86,16 @@ export default function AmbianceSection() {
                 <span className="info-value">{RESTAURANT_INFO.phone}</span>
               </div>
             </div>
+          </div>
+
+          <div style={{ marginTop: '1.25rem' }}>
+            <button 
+              className="btn btn-primary"
+              style={{ padding: '0.8rem 1.8rem', borderRadius: '50px', fontWeight: '700' }}
+              onClick={onOpenReservation}
+            >
+              📅 Reserve a Table at Mitsi's Colombo 03
+            </button>
           </div>
         </div>
       </div>

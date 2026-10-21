@@ -5,13 +5,21 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { RESTAURANT_INFO } from '../data/menuData';
+import api from '../services/api';
 import './OrderSuccessModal.css';
 
 export default function OrderSuccessModal({ orderData, onClose, onResetOrder }) {
-  const [activeStep, setActiveStep] = useState(2); // 1: Paid, 2: Preparing, 3: On The Way, 4: Delivered
+  const [liveOrder, setLiveOrder] = useState(orderData);
+  const [activeStep, setActiveStep] = useState(() => {
+    if (orderData?.status === 'delivered') return 4;
+    if (orderData?.status === 'on_the_way') return 3;
+    if (orderData?.status === 'preparing') return 2;
+    return 1;
+  });
 
   useEffect(() => {
     if (orderData) {
+      setLiveOrder(orderData);
       // Fire festive celebratory confetti
       confetti({
         particleCount: 100,
@@ -19,6 +27,25 @@ export default function OrderSuccessModal({ orderData, onClose, onResetOrder }) 
         origin: { y: 0.55 },
         colors: ['#d9258b', '#f59e0b', '#10b981', '#38bdf8', '#ffffff']
       });
+
+      // Poll live backend order status
+      const pollId = setInterval(async () => {
+        try {
+          const res = await api.getOrder(orderData.orderId);
+          if (res && res.success && res.data) {
+            setLiveOrder((prev) => ({ ...prev, ...res.data }));
+            const st = res.data.status;
+            if (st === 'delivered') setActiveStep(4);
+            else if (st === 'on_the_way') setActiveStep(3);
+            else if (st === 'preparing') setActiveStep(2);
+            else setActiveStep(1);
+          }
+        } catch (err) {
+          // Silent polling fail
+        }
+      }, 3500);
+
+      return () => clearInterval(pollId);
     }
   }, [orderData]);
 
@@ -78,37 +105,49 @@ export default function OrderSuccessModal({ orderData, onClose, onResetOrder }) 
 
         {/* Live Order Tracker Stages */}
         <div className="order-tracker-timeline">
-          <div className="tracker-stage completed">
+          <div className={`tracker-stage ${activeStep >= 1 ? 'completed' : ''}`}>
             <div className="stage-icon-circle">
               <Check size={16} />
             </div>
             <div className="stage-info">
               <span className="stage-name">Order & Payment</span>
-              <small className="stage-status">Confirmed ({orderData.paidAt || 'Just now'})</small>
+              <small className="stage-status">Confirmed ({liveOrder.paidAt || 'Just now'})</small>
             </div>
           </div>
 
-          <div className="tracker-stage-connector completed"></div>
+          <div className={`tracker-stage-connector ${activeStep >= 2 ? 'completed' : ''}`}></div>
 
-          <div className="tracker-stage active">
+          <div className={`tracker-stage ${activeStep >= 2 ? (activeStep === 2 ? 'active' : 'completed') : ''}`}>
             <div className="stage-icon-circle pulse-flame">
               <Flame size={16} />
             </div>
             <div className="stage-info">
               <span className="stage-name">Kitchen Preparing</span>
-              <small className="stage-status">Fresh on Charcoal Grill</small>
+              <small className="stage-status">{activeStep >= 2 ? 'Charcoal Grilling' : 'Pending'}</small>
             </div>
           </div>
 
-          <div className="tracker-stage-connector"></div>
+          <div className={`tracker-stage-connector ${activeStep >= 3 ? 'completed' : ''}`}></div>
 
-          <div className="tracker-stage">
+          <div className={`tracker-stage ${activeStep >= 3 ? (activeStep === 3 ? 'active' : 'completed') : ''}`}>
             <div className="stage-icon-circle">
               <Bike size={16} />
             </div>
             <div className="stage-info">
               <span className="stage-name">Out for Delivery</span>
-              <small className="stage-status">Est: 25-35 mins</small>
+              <small className="stage-status">{activeStep >= 3 ? 'Rider on the way' : 'Est: 25-35 mins'}</small>
+            </div>
+          </div>
+
+          <div className={`tracker-stage-connector ${activeStep >= 4 ? 'completed' : ''}`}></div>
+
+          <div className={`tracker-stage ${activeStep >= 4 ? 'completed' : ''}`}>
+            <div className="stage-icon-circle">
+              <CheckCircle2 size={16} />
+            </div>
+            <div className="stage-info">
+              <span className="stage-name">Delivered</span>
+              <small className="stage-status">{activeStep >= 4 ? 'Enjoy your meal!' : 'Awaiting arrival'}</small>
             </div>
           </div>
         </div>
@@ -124,8 +163,11 @@ export default function OrderSuccessModal({ orderData, onClose, onResetOrder }) 
             </div>
             <div className="invoice-right-meta">
               <span className="invoice-tag">TAX INVOICE / RECEIPT</span>
-              <div className="inv-num"><strong>{orderData.orderId}</strong></div>
-              <small>{orderData.date} • {orderData.paidAt}</small>
+              <div className="inv-num"><strong>{liveOrder.orderId}</strong></div>
+              {liveOrder.trackingCode && (
+                <small className="inv-track-code">Track: {liveOrder.trackingCode}</small>
+              )}
+              <small>{liveOrder.date} • {liveOrder.paidAt}</small>
             </div>
           </div>
 

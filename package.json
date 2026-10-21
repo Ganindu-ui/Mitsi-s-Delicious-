@@ -1,0 +1,24 @@
+{
+  "name": "mitsis-delicacies-app",
+  "version": "1.0.0",
+  "description": "Full-Stack Web Application for Mitsi's Delicacies by Arabian Vibes (Colombo 03)",
+  "private": true,
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "backend": "node backend/src/server.js",
+    "backend:dev": "node --watch backend/src/server.js",
+    "frontend": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build",
+    "dev": "npm run start"
+  },
+  "keywords": [
+    "mitsis-delicacies",
+    "arabian-vibes",
+    "colombo",
+    "express",
+    "react",
+    "restaurant"
+  ],
+  "author": "Mitsi's Delicacies",
+  "license": "ISC"
+}
